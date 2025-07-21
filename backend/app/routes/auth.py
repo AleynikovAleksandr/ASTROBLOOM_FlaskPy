@@ -27,7 +27,7 @@ def login():
     else:
         flash("Invalid login or password", "error")
         return redirect('/')
-
+    
 @auth_bp.route('/register', methods=['POST'])
 def register():
     passport = request.form['passport']
