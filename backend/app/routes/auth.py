@@ -2,8 +2,9 @@ from flask import Blueprint, render_template, redirect, request, url_for, flash
 from app import db
 from app.models.visitor import Visitor
 from app.models.waiter import Waiter
-from flask_login import login_user
+from flask_login import login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask import session, render_template
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -22,12 +23,16 @@ def login():
         user = Visitor.query.filter_by(login=login_value).first()
 
     if user and user.password == password:
+        login_user(user)
         flash("Login successful!", "success")
-        return redirect('/')
+        if isinstance(user, Visitor):
+            return redirect('/visitor')
+        else:
+            return redirect('/waiter')  # если сделаешь интерфейс для официанта
     else:
         flash("Invalid login or password", "error")
         return redirect('/')
-    
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
     passport = request.form['passport']
@@ -57,5 +62,7 @@ def register():
 
     db.session.add(new_user)
     db.session.commit()
+    login_user(new_user)  # автоматически входим после регистрации
     flash("Registration successful!", "success")
-    return redirect('/')
+    return redirect('/visitor')
+

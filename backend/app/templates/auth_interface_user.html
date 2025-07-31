@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu — TOKYO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      background: #fff;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    header.site-header {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      padding: 1.625rem 0;
+      position: relative;
+    }
+
+    .logo-container {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      padding-left: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .logo img {
+      height: 30px;
+      margin-right: 0.5rem;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .main-nav {
+      display: flex;
+    }
+
+    .main-nav ul {
+      list-style: none;
+      display: flex;
+      gap: 3rem;
+      padding-right: 0; 
+     
+    }
+
+    .main-nav ul li a {
+      text-decoration: none;
+      color: #2f2f2f;
+      font-size: 18px;
+      -webkit-transition: .3s;
+      transition: .3s;
+    }
+
+    .main-nav ul li a:hover {
+      color: red;
+    }
+
+    .main-nav ul li a:active {
+      color: red;
+      transform: scale(1.1);
+    }
+
+    h1.section-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .menu-section {
+      padding: 2rem 1rem;
+    }
+
+    .sorting-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 1.5rem 0;
+      font-size: 1rem;
+      gap: 1rem;
+    }
+
+    .sorting-bar a {
+      text-decoration: none;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .sorting-bar a.active {
+      color: red;
+      font-weight: bold;
+    }
+
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      padding: 1rem;
+    }
+
+    .product-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .product-description {
+      font-size: 0.9rem;
+      color: #555;
+      line-height: 1.4;
+      padding: 1rem;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px 16px 0 0;
+      transform: translateY(-100%);
+    }
+
+    .product-card:hover .product-description {
+      animation: show-data 0.2s forwards;
+      opacity: 1;
+    }
+
+    .product-card:not(:hover) .product-description {
+      animation: remove-data 0.2s forwards;
+    }
+
+    @keyframes show-data {
+      0% {
+        transform: translateY(-100%);
+      }
+      50% {
+        transform: translateY(-50%);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes remove-data {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-50%);
+      }
+      100% {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+    }
+
+    .product-info {
+      padding: 1rem;
+      text-align: left;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .dish-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .dish-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      max-width: 70%;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .price {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .dish-weight {
+      font-size: 0.9rem;
+      color: #777;
+      margin: 0.2rem 0;
+    }
+
+    .add-to-cart {
+      padding: 6px 23px;
+      font-size: 0.875rem;
+      line-height: 22px;
+      margin: 0 auto;
+      width: auto;
+      display: block;
+      border-radius: 100px;
+      border: 1px solid #ef4136;
+      background-color: #f04634;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    .card__buy .input-box--count {
+      background: #f6f6f6;
+      border-radius: 6px;
+      width: 102px;
+      margin: 0 auto;
+      display: none;
+      align-items: center;
+      padding: 0.3rem 0.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .card__buy .input-box--count.active {
+      display: flex;
+      justify-content: center;
+    }
+
+    .quantity-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 0.5rem;
+    }
+
+    .quantity-value {
+      font-size: 1rem;
+      font-weight: 500;
+      padding: 0 0.5rem;
+    }
+
+    .btnLogout-popup {
+      padding: 6px 23px;
+      font-size: 0.875rem;
+      line-height: 22px;
+      width: auto;
+      border-radius: 100px;
+      border: 1px solid #ef4136;
+      background-color: #f04634;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .btnLogout-popup:hover {
+      background-color: #c5352a; 
+      border-color: #ef4136;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo-container">
+      <div class="logo">
+        <img src="data:image/png;base64,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" alt="TOKYO Logo" />
+        ASTROBLOOM
+      </div>
+    </div>
+    <div class="container header-container">
+      <nav class="main-nav">
+        <ul>
+          <li><a href="#" aria-label="Go to Menu">Menu</a></li>
+          <li><a href="#" aria-label="Go to Cart">Cart</a></li>
+          <li><a href="#" aria-label="Go to Orders">Orders</a></li>
+          <li><a href="#" aria-label="Go to Reservation">Reservation</a></li>
+        </ul>
+        <form id="logoutForm" action="/logout" method="POST" style="display: inline;">
+            <button type="submit" class="btnLogout-popup" aria-label="Log out">Logout</button>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <section class="menu-section">
+    <h1 class="section-title">Menu</h1>
+    <div class="sorting-bar">
+      <span>Sort by:</span>
+      <a href="#" class="active">Default</a>
+      <a href="#">Highest Price</a>
+      <a href="#">Lowest Price</a>
+      <a href="#">By Name</a>
+    </div>
+  </section>
+
+  <section class="product-list">
+  {% for item in menu_items %}
+    <div class="product-card" data-menu-id="{{ item.menu_id }}">
+      <p class="product-description">{{ ingredient_map[item.menu_id] }}</p>
+      <img src="{{ item.image_url or 'https://via.placeholder.com/300x180' }}" alt="{{ item.menu_name }}" loading="lazy" style="width: 100%; height: 180px; object-fit: cover;" />
+      <div class="product-info">
+        <div class="dish-header">
+          <h3 class="dish-name">{{ item.menu_name }}</h3>
+          <span class="price">${{ "%.2f"|format(item.price) }}</span>
+        </div>
+        <p class="dish-weight">{{ item.weight }} g.</p>
+        <div class="card__buy">
+          <button class="add-to-cart">Add to Cart</button>
+          <div class="input-box--count">
+            <button class="quantity-btn" aria-label="Decrease quantity">-</button>
+            <span class="quantity-value">1</span>
+            <button class="quantity-btn" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</section>
+
+
+  <script>
+    // Load cart from localStorage
+    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+
+    // Product card functionality
+    document.querySelectorAll('.product-card').forEach(card => {
+      // Handle image errors
+      const img = card.querySelector('img');
+      img.addEventListener('error', () => {
+        img.src = 'https://via.placeholder.com/250x180?text=Image+Error';
+      });
+
+      // Quantity selector functionality
+      const dishName = card.querySelector('.dish-name').textContent;
+      const addToCartBtn = card.querySelector('.add-to-cart');
+      const quantitySelector = card.querySelector('.input-box--count');
+      const quantityValue = card.querySelector('.quantity-value');
+      const quantityBtnMinus = card.querySelector('.quantity-btn:first-child');
+      const quantityBtnPlus = card.querySelector('.quantity-btn:last-child');
+
+      // Restore cart state
+      if (cart[dishName]) {
+        quantityValue.textContent = cart[dishName];
+        addToCartBtn.style.display = 'none';
+        quantitySelector.classList.add('active');
+      }
+
+      addToCartBtn.addEventListener('click', () => {
+        addToCartBtn.style.display = 'none';
+        quantitySelector.classList.add('active');
+        cart[dishName] = parseInt(quantityValue.textContent);
+        localStorage.setItem('cart', JSON.stringify(cart));
+      });
+
+      quantityBtnMinus.addEventListener('click', () => {
+        let value = parseInt(quantityValue.textContent);
+        if (value > 1) {
+          quantityValue.textContent = value - 1;
+          cart[dishName] = value - 1;
+        } else {
+          quantitySelector.classList.remove('active');
+          addToCartBtn.style.display = 'block';
+          quantityValue.textContent = '1';
+          delete cart[dishName];
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+      });
+
+      quantityBtnPlus.addEventListener('click', () => {
+        let value = parseInt(quantityValue.textContent);
+        quantityValue.textContent = value + 1;
+        cart[dishName] = value + 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+      });
+    });
+
+    // Sorting functionality
+    const sortingLinks = document.querySelectorAll('.sorting-bar a');
+    const productList = document.querySelector('.product-list');
+
+    sortingLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        sortingLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+
+        const sortType = link.textContent;
+        const cards = Array.from(productList.querySelectorAll('.product-card'));
+
+        if (sortType === 'Highest Price') {
+          cards.sort((a, b) => {
+            const priceA = parseFloat(a.querySelector('.price').textContent.replace('$', ''));
+            const priceB = parseFloat(b.querySelector('.price').textContent.replace('$', ''));
+            return priceB - priceA;
+          });
+        } else if (sortType === 'Lowest Price') {
+          cards.sort((a, b) => {
+            const priceA = parseFloat(a.querySelector('.price').textContent.replace('$', ''));
+            const priceB = parseFloat(b.querySelector('.price').textContent.replace('$', ''));
+            return priceA - priceB;
+          });
+        } else if (sortType === 'By Name') {
+          cards.sort((a, b) => {
+            const nameA = a.querySelector('.dish-name').textContent;
+            const nameB = b.querySelector('.dish-name').textContent;
+            return nameA.localeCompare(nameB);
+          });
+        } else {
+          // Reset to default (original order)
+          cards.sort((a, b) => {
+            const defaultOrder = [
+              'Far Eastern Soup with Two Types of Fish',
+              'Homemade Broth with Gyoza'
+            ];
+            return defaultOrder.indexOf(a.querySelector('.dish-name').textContent) - defaultOrder.indexOf(b.querySelector('.dish-name').textContent);
+          });
+        }
+
+        productList.innerHTML = '';
+        cards.forEach(card => productList.appendChild(card));
+      });
+    });
+  </script>
+</body>
+</html>
