@@ -24,26 +24,41 @@
 
 ## Getting Started
 
-### Clone the Repository
+# Project Setup
 
-```bash
-git clone https://github.com/AleynikovAleksandr/restaurant_web_app.git
-cd restaurant_web_app
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/AleynikovAleksandr/restaurant_web_app.git
+   cd restaurant_web_app
+   ```
 
-python -m venv venv
-source venv/bin/activate      # macOS/Linux
-venv\Scripts\activate         # Windows
+2. Create and activate a virtual environment:
+   - On macOS/Linux:
+     ```bash
+     python -m venv venv
+     source venv/bin/activate
+     ```
+   - On Windows:
+     ```bash
+     python -m venv venv
+     venv\Scripts\activate
+     ```
 
-pip install -r requirements.txt
-```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Run the Application
 
 ```bash
 cd backend
 python run.py
+```
 
-http://127.0.0.1:5000 #Then open your browser 
+Then, open your browser and navigate to:
+```
+http://127.0.0.1:5000
 ```
 
 ## Test Accounts
