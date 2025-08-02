@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Menu — TOKYO</title>
+  <title>Menu</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/user_dashboard.css') }}">
 </head>
 <body>
+  <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sorting.js') }}"></script>
   <header class="site-header">
     <div class="logo-container">
       <div class="logo">
@@ -49,9 +51,9 @@
       <div class="product-info">
         <div class="dish-header">
           <h3 class="dish-name">{{ item.menu_name }}</h3>
-          <span class="price">${{ "%.2f"|format(item.price) }}</span>
+          <span class="price">₽ {{ "%.2f"|format(item.price) }}</span>
         </div>
-        <p class="dish-weight">{{ item.weight }} g.</p>
+        <p class="dish-weight">{{ item.weight |int }} g.</p>
         <div class="card__buy">
           <button class="add-to-cart">Add to Cart</button>
           <div class="input-box--count">
@@ -64,110 +66,5 @@
     </div>
   {% endfor %}
 </section>
-
-
-  <script>
-    // Load cart from localStorage
-    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-
-    // Product card functionality
-    document.querySelectorAll('.product-card').forEach(card => {
-      // Handle image errors
-      const img = card.querySelector('img');
-      img.addEventListener('error', () => {
-        img.src = 'https://via.placeholder.com/250x180?text=Image+Error';
-      });
-
-      // Quantity selector functionality
-      const dishName = card.querySelector('.dish-name').textContent;
-      const addToCartBtn = card.querySelector('.add-to-cart');
-      const quantitySelector = card.querySelector('.input-box--count');
-      const quantityValue = card.querySelector('.quantity-value');
-      const quantityBtnMinus = card.querySelector('.quantity-btn:first-child');
-      const quantityBtnPlus = card.querySelector('.quantity-btn:last-child');
-
-      // Restore cart state
-      if (cart[dishName]) {
-        quantityValue.textContent = cart[dishName];
-        addToCartBtn.style.display = 'none';
-        quantitySelector.classList.add('active');
-      }
-
-      addToCartBtn.addEventListener('click', () => {
-        addToCartBtn.style.display = 'none';
-        quantitySelector.classList.add('active');
-        cart[dishName] = parseInt(quantityValue.textContent);
-        localStorage.setItem('cart', JSON.stringify(cart));
-      });
-
-      quantityBtnMinus.addEventListener('click', () => {
-        let value = parseInt(quantityValue.textContent);
-        if (value > 1) {
-          quantityValue.textContent = value - 1;
-          cart[dishName] = value - 1;
-        } else {
-          quantitySelector.classList.remove('active');
-          addToCartBtn.style.display = 'block';
-          quantityValue.textContent = '1';
-          delete cart[dishName];
-        }
-        localStorage.setItem('cart', JSON.stringify(cart));
-      });
-
-      quantityBtnPlus.addEventListener('click', () => {
-        let value = parseInt(quantityValue.textContent);
-        quantityValue.textContent = value + 1;
-        cart[dishName] = value + 1;
-        localStorage.setItem('cart', JSON.stringify(cart));
-      });
-    });
-
-    // Sorting functionality
-    const sortingLinks = document.querySelectorAll('.sorting-bar a');
-    const productList = document.querySelector('.product-list');
-
-    sortingLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        sortingLinks.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-
-        const sortType = link.textContent;
-        const cards = Array.from(productList.querySelectorAll('.product-card'));
-
-        if (sortType === 'Highest Price') {
-          cards.sort((a, b) => {
-            const priceA = parseFloat(a.querySelector('.price').textContent.replace('$', ''));
-            const priceB = parseFloat(b.querySelector('.price').textContent.replace('$', ''));
-            return priceB - priceA;
-          });
-        } else if (sortType === 'Lowest Price') {
-          cards.sort((a, b) => {
-            const priceA = parseFloat(a.querySelector('.price').textContent.replace('$', ''));
-            const priceB = parseFloat(b.querySelector('.price').textContent.replace('$', ''));
-            return priceA - priceB;
-          });
-        } else if (sortType === 'By Name') {
-          cards.sort((a, b) => {
-            const nameA = a.querySelector('.dish-name').textContent;
-            const nameB = b.querySelector('.dish-name').textContent;
-            return nameA.localeCompare(nameB);
-          });
-        } else {
-          // Reset to default (original order)
-          cards.sort((a, b) => {
-            const defaultOrder = [
-              'Far Eastern Soup with Two Types of Fish',
-              'Homemade Broth with Gyoza'
-            ];
-            return defaultOrder.indexOf(a.querySelector('.dish-name').textContent) - defaultOrder.indexOf(b.querySelector('.dish-name').textContent);
-          });
-        }
-
-        productList.innerHTML = '';
-        cards.forEach(card => productList.appendChild(card));
-      });
-    });
-  </script>
 </body>
 </html>
