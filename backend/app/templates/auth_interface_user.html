@@ -6,6 +6,8 @@
   <title>Menu</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/user_dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/litecart.css') }}">
+
 </head>
 <body>
   <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
@@ -66,5 +68,37 @@
     </div>
   {% endfor %}
 </section>
+
+ <!-- CART PAGE -->
+  <main class="cart-page" style="display:none;">
+    <div class="title-container">
+      <h2 class="cart-title title__text--offsets-none">Cart</h2>
+      <button class="remove-all">🗑️ Delete All</button>
+    </div>
+
+    <section class="cart-container">
+      <div class="cart-items">
+        <h3 class="title__text--offsets-none">Your Order</h3>
+        <!-- Товары будут рендериться сюда динамически из JS -->
+      </div>
+
+      <div class="summary-wrapper">
+        <div class="cart-summary info__panel">
+          <div class="total">
+            <p class="total-label panel-price__title"><strong>Total</strong></p>
+            <div class="price-info__panel-line"></div>
+            <p class="meal-total price-info__content">Dishes: <span class="meal-price">0 pcs</span></p>
+            <div class="price-info__panel-line"></div>
+            <p class="payable-total price-info__content">To Pay: <span class="price-value">0.00 ₽</span></p>
+          </div>
+          <div class="basket__btns">
+            <button class="button button--theme-orange button-price-info">Place Order</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
 </body>
 </html>
