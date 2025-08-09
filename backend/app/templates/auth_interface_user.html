@@ -33,7 +33,7 @@
       </nav>
     </div>
   </header>
-
+{% if active_page == "menu" %}
   <section class="menu-section">
     <h1 class="section-title">Menu</h1>
     <div class="sorting-bar">
@@ -68,9 +68,11 @@
     </div>
   {% endfor %}
 </section>
+{% endif %}
 
+{% if active_page == "cart" %}
  <!-- CART PAGE -->
-  <main class="cart-page" style="display:none;">
+  <main class="cart-page">
     <div class="title-container">
       <h2 class="cart-title title__text--offsets-none">Cart</h2>
       <button class="remove-all">🗑️ Delete All</button>
@@ -98,7 +100,7 @@
       </div>
     </section>
   </main>
-
+{% endif %}
 
 </body>
 </html>

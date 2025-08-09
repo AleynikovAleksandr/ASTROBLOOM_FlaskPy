@@ -63,11 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- Менеджер корзины (логика) ---
+    // --- Менеджер корзины ---
     class CartManager {
         constructor(storage) {
             this.storage = storage;
-            this.cart = {}; // { "Dish name": { qty, price, image } }
+            this.cart = {};
         }
 
         async init() {
@@ -129,10 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
     class CartUI {
         constructor(cartManager) {
             this.cartManager = cartManager;
-
-            this.menuSection = document.querySelector(".menu-section");
-            this.productList = document.querySelector(".product-list");
-            this.cartSection = document.querySelector(".cart-page");
             this.cartItemsContainer = document.querySelector(".cart-items");
             this.mealPriceEl = document.querySelector(".meal-price");
             this.totalPriceEl = document.querySelector(".price-value");
@@ -142,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
             this.initClearCart();
         }
 
+        // Навигация теперь через Flask-маршруты
         initNavigation() {
             const showMenuBtn = document.querySelector('a[aria-label="Go to Menu"]');
             const showCartBtn = document.querySelector('a[aria-label="Go to Cart"]');
@@ -149,26 +146,20 @@ document.addEventListener("DOMContentLoaded", () => {
             if (showMenuBtn) {
                 showMenuBtn.addEventListener("click", (e) => {
                     e.preventDefault();
-                    if (this.menuSection) this.menuSection.style.display = "block";
-                    if (this.productList) this.productList.style.display = "grid";
-                    if (this.cartSection) this.cartSection.style.display = "none";
+                    window.location.href = "/visitor/menu";
                 });
             }
 
             if (showCartBtn) {
                 showCartBtn.addEventListener("click", (e) => {
                     e.preventDefault();
-                    this.renderCart();
-                    if (this.menuSection) this.menuSection.style.display = "none";
-                    if (this.productList) this.productList.style.display = "none";
-                    if (this.cartSection) this.cartSection.style.display = "block";
+                    window.location.href = "/visitor/cart";
                 });
             }
         }
 
         initClearCart() {
             if (!this.removeAllBtn) return;
-            // Убрали запрос подтверждения
             this.removeAllBtn.addEventListener("click", () => {
                 this.cartManager.clearCart();
                 this.renderCart();
@@ -184,8 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderCart() {
             if (!this.cartItemsContainer) return;
-
-            // Очищаем содержимое корзины, но не меняем контейнер и классы
             this.cartItemsContainer.innerHTML = `<h3 class="title__text--offsets-none">Your Order</h3>`;
 
             const entries = Object.entries(this.cartManager.cart);
@@ -195,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 emptyEl.style.fontWeight = "500";
                 emptyEl.style.fontSize = "16px";
                 emptyEl.style.color = "#2f2f2f";
-                emptyEl.style.marginTop = "20px";  
+                emptyEl.style.marginTop = "20px";
                 this.cartItemsContainer.appendChild(emptyEl);
                 this.updateSummary();
                 return;
@@ -224,21 +213,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 `;
 
-                const decBtn = itemEl.querySelector(".quantity-btn.dec");
-                const incBtn = itemEl.querySelector(".quantity-btn.inc");
-                const delBtn = itemEl.querySelector(".delete-btn");
-
-                if (decBtn) decBtn.addEventListener("click", () => {
+                itemEl.querySelector(".quantity-btn.dec").addEventListener("click", () => {
                     this.cartManager.decreaseItem(dishName);
                     this.renderCart();
                     this.cartManager.syncMenuUI && this.cartManager.syncMenuUI();
                 });
-                if (incBtn) incBtn.addEventListener("click", () => {
+
+                itemEl.querySelector(".quantity-btn.inc").addEventListener("click", () => {
                     this.cartManager.increaseItem(dishName);
                     this.renderCart();
                     this.cartManager.syncMenuUI && this.cartManager.syncMenuUI();
                 });
-                if (delBtn) delBtn.addEventListener("click", () => {
+
+                itemEl.querySelector(".delete-btn").addEventListener("click", () => {
                     this.cartManager.removeItem(dishName);
                     this.renderCart();
                     this.cartManager.syncMenuUI && this.cartManager.syncMenuUI();
@@ -251,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- Логика карточек меню ---
+    // --- Логика меню ---
     class MenuManager {
         constructor(cartManager) {
             this.cartManager = cartManager;
@@ -265,13 +252,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const img = card.querySelector('img');
                 const defaultImg = 'https://via.placeholder.com/250x180?text=Image+Error';
 
-                // Обработка ошибок загрузки изображения
                 if (img) {
                     img.addEventListener('error', () => {
                         img.src = defaultImg;
                     });
-                    img.src = img.src || defaultImg;
-                    img.setAttribute('loading', 'lazy');
                 }
 
                 const addToCartBtn = card.querySelector('.add-to-cart');
@@ -280,42 +264,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 const quantityBtnMinus = quantitySelector?.querySelectorAll('.quantity-btn')[0];
                 const quantityBtnPlus = quantitySelector?.querySelectorAll('.quantity-btn')[1];
 
-                // Инициализация UI исходя из состояния корзины
                 if (this.cartManager.cart[dishName]) {
-                    if (quantityValue) quantityValue.textContent = this.cartManager.cart[dishName].qty;
-                    if (addToCartBtn) addToCartBtn.style.display = 'none';
-                    if (quantitySelector) quantitySelector.classList.add('active');
-                } else {
-                    if (quantityValue) quantityValue.textContent = '1';
-                    if (addToCartBtn) addToCartBtn.style.display = 'block';
-                    if (quantitySelector) quantitySelector.classList.remove('active');
+                    quantityValue.textContent = this.cartManager.cart[dishName].qty;
+                    addToCartBtn.style.display = 'none';
+                    quantitySelector.classList.add('active');
                 }
 
-                // Слушатели
-                if (addToCartBtn) addToCartBtn.addEventListener('click', () => {
-                    const qty = quantityValue ? parseInt(quantityValue.textContent) || 1 : 1;
+                addToCartBtn.addEventListener('click', () => {
+                    const qty = parseInt(quantityValue.textContent);
                     this.cartManager.addItem(dishName, price, img?.src || defaultImg, qty);
-                    if (addToCartBtn) addToCartBtn.style.display = 'none';
-                    if (quantitySelector) quantitySelector.classList.add('active');
+                    addToCartBtn.style.display = 'none';
+                    quantitySelector.classList.add('active');
                 });
 
-                if (quantityBtnMinus) quantityBtnMinus.addEventListener('click', () => {
-                    const v = quantityValue ? parseInt(quantityValue.textContent) || 1 : 1;
-                    if (v > 1) {
-                        if (quantityValue) quantityValue.textContent = (v - 1).toString();
-                        if (this.cartManager.cart[dishName]) this.cartManager.decreaseItem(dishName);
+                quantityBtnMinus.addEventListener('click', () => {
+                    if (parseInt(quantityValue.textContent) > 1) {
+                        quantityValue.textContent = parseInt(quantityValue.textContent) - 1;
+                        this.cartManager.decreaseItem(dishName);
                     } else {
-                        if (quantitySelector) quantitySelector.classList.remove('active');
-                        if (addToCartBtn) addToCartBtn.style.display = 'block';
-                        if (quantityValue) quantityValue.textContent = '1';
+                        quantitySelector.classList.remove('active');
+                        addToCartBtn.style.display = 'block';
+                        quantityValue.textContent = '1';
                         this.cartManager.removeItem(dishName);
                     }
                 });
 
-                if (quantityBtnPlus) quantityBtnPlus.addEventListener('click', () => {
-                    const v = quantityValue ? parseInt(quantityValue.textContent) || 1 : 1;
-                    if (quantityValue) quantityValue.textContent = (v + 1).toString();
-                    if (this.cartManager.cart[dishName]) this.cartManager.increaseItem(dishName);
+                quantityBtnPlus.addEventListener('click', () => {
+                    quantityValue.textContent = parseInt(quantityValue.textContent) + 1;
+                    this.cartManager.increaseItem(dishName);
                 });
             });
         }
@@ -328,7 +304,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await cartManager.init();
 
-        // Функция для синхронизации UI меню с состоянием корзины
         cartManager.syncMenuUI = () => {
             document.querySelectorAll('.product-card').forEach(card => {
                 const dishName = card.querySelector('.dish-name').textContent;
@@ -337,13 +312,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const quantityValue = quantitySelector?.querySelector('.quantity-value');
 
                 if (cartManager.cart[dishName]) {
-                    if (quantityValue) quantityValue.textContent = cartManager.cart[dishName].qty;
-                    if (addToCartBtn) addToCartBtn.style.display = 'none';
-                    if (quantitySelector) quantitySelector.classList.add('active');
+                    quantityValue.textContent = cartManager.cart[dishName].qty;
+                    addToCartBtn.style.display = 'none';
+                    quantitySelector.classList.add('active');
                 } else {
-                    if (quantityValue) quantityValue.textContent = '1';
-                    if (addToCartBtn) addToCartBtn.style.display = 'block';
-                    if (quantitySelector) quantitySelector.classList.remove('active');
+                    quantityValue.textContent = '1';
+                    addToCartBtn.style.display = 'block';
+                    quantitySelector.classList.remove('active');
                 }
             });
         };

@@ -8,12 +8,9 @@ from flask import session, render_template
 
 user_bp = Blueprint('user', __name__)
 
-@user_bp.route("/visitor")
-@login_required
-def visitor_interface():
+def get_menu_with_ingredients():
     menu_items = db.session.query(Menu).all()
     ingredient_map = {}
-
     for item in menu_items:
         composition_entries = db.session.query(Composition).filter_by(menu_id=item.menu_id).all()
         ingredient_ids = [comp.ingredient_id for comp in composition_entries]
@@ -22,9 +19,29 @@ def visitor_interface():
             ingredient_map[item.menu_id] = ", ".join(i.ingredient_name for i in ingredients)
         else:
             ingredient_map[item.menu_id] = "No ingredients listed"
+    return menu_items, ingredient_map
 
-    return render_template("auth_interface_user.html", menu_items=menu_items, ingredient_map=ingredient_map)
 
+# Редирект с /visitor на /visitor/menu по умолчанию
+@user_bp.route("/visitor")
+def visitor_root():
+    return redirect(url_for("user.menu_page"))
+
+@user_bp.route("/visitor/menu")
+def menu_page():
+    menu_items, ingredient_map = get_menu_with_ingredients()
+    return render_template("auth_interface_user.html",
+                           menu_items=menu_items,
+                           ingredient_map=ingredient_map,
+                           active_page="menu")
+
+@user_bp.route("/visitor/cart")
+def cart_page():
+    menu_items, ingredient_map = get_menu_with_ingredients()
+    return render_template("auth_interface_user.html",
+                           menu_items=menu_items,
+                           ingredient_map=ingredient_map,
+                           active_page="cart")
 
 @user_bp.route("/logout", methods=["POST"])
 @login_required
