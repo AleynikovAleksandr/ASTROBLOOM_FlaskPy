@@ -33,7 +33,8 @@ def menu_page():
     return render_template("auth_interface_user.html",
                            menu_items=menu_items,
                            ingredient_map=ingredient_map,
-                           active_page="menu")
+                           active_page="menu",
+                           page_title="Menu")
 
 @user_bp.route("/visitor/cart")
 def cart_page():
@@ -41,7 +42,8 @@ def cart_page():
     return render_template("auth_interface_user.html",
                            menu_items=menu_items,
                            ingredient_map=ingredient_map,
-                           active_page="cart")
+                           active_page="cart",
+                           page_title="Cart")
 
 @user_bp.route("/logout", methods=["POST"])
 @login_required
