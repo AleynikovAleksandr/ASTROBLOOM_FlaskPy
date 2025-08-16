@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    // --- Хранилище корзины на IndexedDB ---
+    const defaultImg = 'https://via.placeholder.com/250x180?text=Image+Error';
+
+    // --- IndexedDB для локального хранилища ---
     class CartStorage {
         constructor(dbName = "CartDB", storeName = "cart") {
             this.dbName = dbName;
@@ -12,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         init() {
             return new Promise((resolve, reject) => {
                 if (!window.indexedDB) {
-                    console.error("IndexedDB не поддерживается этим браузером");
+                    console.error("IndexedDB не поддерживается");
                     reject("IndexedDB not supported");
                     return;
                 }
@@ -68,20 +70,70 @@ document.addEventListener("DOMContentLoaded", () => {
         constructor(storage) {
             this.storage = storage;
             this.cart = {};
+            this.summaryCallbacks = [];
         }
 
         async init() {
             await this.storage.init();
-            this.cart = await this.storage.load();
+
+            try {
+                const res = await fetch("/api/cart");
+                if (res.ok) {
+                    const serverData = await res.json();
+                    serverData.forEach(item => {
+                        this.cart[item.dish_name] = {
+                            qty: item.qty,
+                            price: item.price,
+                            image: item.image || defaultImg
+                        };
+                    });
+                    this.storage.save(this.cart);
+                }
+            } catch (err) {
+                console.error("Ошибка загрузки с сервера:", err);
+                this.cart = await this.storage.load();
+            }
+
+            this.triggerSummaryUpdate();
+        }
+
+        registerSummaryCallback(callback) {
+            if (typeof callback === "function") this.summaryCallbacks.push(callback);
+        }
+
+        triggerSummaryUpdate() {
+            this.summaryCallbacks.forEach(cb => cb());
+        }
+
+        async syncServer() {
+            try {
+                const payload = Object.entries(this.cart).map(([name, data]) => ({
+                    dish_name: name,
+                    qty: data.qty,
+                    price: data.price,
+                    image: data.image || defaultImg
+                }));
+                await fetch("/api/cart", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.error("Ошибка синхронизации с сервером:", err);
+            }
         }
 
         save() {
             this.storage.save(this.cart);
+            this.syncServer();
+            this.triggerSummaryUpdate();
         }
 
         addItem(name, price, image, qty = 1) {
+            if (!image) image = defaultImg;
             if (this.cart[name]) {
                 this.cart[name].qty += qty;
+                this.cart[name].image = image;
             } else {
                 this.cart[name] = { qty, price, image };
             }
@@ -123,6 +175,25 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             return { totalItems, totalPrice };
         }
+
+        syncMenuUI() {
+            document.querySelectorAll('.product-card').forEach(card => {
+                const dishName = card.querySelector('.dish-name').textContent;
+                const addBtn = card.querySelector('.add-to-cart');
+                const quantitySelector = card.querySelector('.input-box--count');
+                const quantityValue = quantitySelector?.querySelector('.quantity-value');
+
+                if (this.cart[dishName]) {
+                    if (quantityValue) quantityValue.textContent = this.cart[dishName].qty;
+                    if (addBtn) addBtn.style.display = 'none';
+                    if (quantitySelector) quantitySelector.classList.add('active');
+                } else {
+                    if (quantityValue) quantityValue.textContent = '1';
+                    if (addBtn) addBtn.style.display = 'block';
+                    if (quantitySelector) quantitySelector.classList.remove('active');
+                }
+            });
+        }
     }
 
     // --- UI корзины ---
@@ -134,28 +205,19 @@ document.addEventListener("DOMContentLoaded", () => {
             this.totalPriceEl = document.querySelector(".price-value");
             this.removeAllBtn = document.querySelector(".remove-all");
 
+            // регистрируем callback для обновления summary
+            this.cartManager.registerSummaryCallback(() => this.updateSummary());
+
             this.initNavigation();
             this.initClearCart();
+            this.initLogoutSave();
         }
 
-        // Навигация теперь через Flask-маршруты
         initNavigation() {
             const showMenuBtn = document.querySelector('a[aria-label="Go to Menu"]');
             const showCartBtn = document.querySelector('a[aria-label="Go to Cart"]');
-
-            if (showMenuBtn) {
-                showMenuBtn.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    window.location.href = "/visitor/menu";
-                });
-            }
-
-            if (showCartBtn) {
-                showCartBtn.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    window.location.href = "/visitor/cart";
-                });
-            }
+            if (showMenuBtn) showMenuBtn.addEventListener("click", e => { e.preventDefault(); window.location.href = "/visitor/menu"; });
+            if (showCartBtn) showCartBtn.addEventListener("click", e => { e.preventDefault(); window.location.href = "/visitor/cart"; });
         }
 
         initClearCart() {
@@ -163,8 +225,19 @@ document.addEventListener("DOMContentLoaded", () => {
             this.removeAllBtn.addEventListener("click", () => {
                 this.cartManager.clearCart();
                 this.renderCart();
-                this.cartManager.syncMenuUI && this.cartManager.syncMenuUI();
+                this.cartManager.syncMenuUI();
             });
+        }
+
+        initLogoutSave() {
+            const logoutForm = document.querySelector("#logoutForm");
+            if (logoutForm) {
+                logoutForm.addEventListener("submit", async e => {
+                    e.preventDefault();
+                    await this.cartManager.syncServer();
+                    logoutForm.submit();
+                });
+            }
         }
 
         updateSummary() {
@@ -178,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
             this.cartItemsContainer.innerHTML = `<h3 class="title__text--offsets-none">Your Order</h3>`;
 
             const entries = Object.entries(this.cartManager.cart);
-            if (entries.length === 0) {
+            if (!entries.length) {
                 const emptyEl = document.createElement("p");
                 emptyEl.textContent = "Cart is empty";
                 emptyEl.style.fontWeight = "500";
@@ -194,41 +267,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 const itemEl = document.createElement("div");
                 itemEl.classList.add("cart-item");
                 itemEl.innerHTML = `
-                    <div class="product__img-box">
-                        <img src="${data.image || 'https://via.placeholder.com/100'}" alt="${dishName}" class="product__img product__img--object-cover" loading="lazy">
+                <div class="product__img-box">
+                    <img src="${data.image || defaultImg}"
+                        alt="${dishName}" 
+                        class="product__img product__img--object-cover" 
+                        loading="lazy">
+                </div>
+                <div class="item-details">
+                    <div class="basket__product-name-box">
+                        <p class="product__name item-name">${dishName}</p>
                     </div>
-                    <div class="item-details">
-                        <div class="basket__product-name-box">
-                            <p class="product__name item-name">${dishName}</p>
-                        </div>
+                </div>
+                <div class="item-controls">
+                    <span class="item-price price__item price__item--rub price__item--bold current freebies">
+                        ${data.price} ₽
+                    </span>
+                    <div class="input-box--count card__buy active">
+                        <button class="quantity-btn dec" aria-label="Decrease quantity">-</button>
+                        <span class="quantity-value">${data.qty}</span>
+                        <button class="quantity-btn inc" aria-label="Increase quantity">+</button>
                     </div>
-                    <div class="item-controls">
-                        <span class="item-price price__item price__item--rub price__item--bold current freebies">${data.price} ₽</span>
-                        <div class="input-box--count card__buy active">
-                            <button class="quantity-btn dec" aria-label="Decrease quantity">-</button>
-                            <span class="quantity-value">${data.qty}</span>
-                            <button class="quantity-btn inc" aria-label="Increase quantity">+</button>
-                        </div>
-                        <button class="delete-btn" aria-label="Remove item">🗑️</button>
-                    </div>
-                `;
+                    <button class="delete-btn" aria-label="Remove item">🗑️</button>
+                </div>
+            `;
 
-                itemEl.querySelector(".quantity-btn.dec").addEventListener("click", () => {
-                    this.cartManager.decreaseItem(dishName);
-                    this.renderCart();
-                    this.cartManager.syncMenuUI && this.cartManager.syncMenuUI();
+
+                itemEl.querySelector(".dec").addEventListener("click", () => { 
+                    this.cartManager.decreaseItem(dishName); 
+                    this.renderCart(); 
+                    this.cartManager.syncMenuUI(); 
                 });
-
-                itemEl.querySelector(".quantity-btn.inc").addEventListener("click", () => {
-                    this.cartManager.increaseItem(dishName);
-                    this.renderCart();
-                    this.cartManager.syncMenuUI && this.cartManager.syncMenuUI();
+                itemEl.querySelector(".inc").addEventListener("click", () => { 
+                    this.cartManager.increaseItem(dishName); 
+                    this.renderCart(); 
+                    this.cartManager.syncMenuUI(); 
                 });
-
-                itemEl.querySelector(".delete-btn").addEventListener("click", () => {
-                    this.cartManager.removeItem(dishName);
-                    this.renderCart();
-                    this.cartManager.syncMenuUI && this.cartManager.syncMenuUI();
+                itemEl.querySelector(".delete-btn").addEventListener("click", () => { 
+                    this.cartManager.removeItem(dishName); 
+                    this.renderCart(); 
+                    this.cartManager.syncMenuUI(); 
                 });
 
                 this.cartItemsContainer.appendChild(itemEl);
@@ -238,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- Логика меню ---
+    // --- Менеджер меню ---
     class MenuManager {
         constructor(cartManager) {
             this.cartManager = cartManager;
@@ -247,49 +324,49 @@ document.addEventListener("DOMContentLoaded", () => {
         init() {
             document.querySelectorAll('.product-card').forEach(card => {
                 const dishName = card.querySelector('.dish-name').textContent;
-                const priceRaw = card.querySelector('.price')?.textContent || "0";
-                const price = priceRaw.replace(/[₽\s]/g, '');
-                const img = card.querySelector('img');
-                const defaultImg = 'https://via.placeholder.com/250x180?text=Image+Error';
+                const price = (card.querySelector('.price')?.textContent || "0").replace(/[₽\s]/g,'');
+                const imgEl = card.querySelector('img');
+                let img = imgEl?.src || defaultImg;
 
-                if (img) {
-                    img.addEventListener('error', () => {
-                        img.src = defaultImg;
+                if (imgEl) {
+                    imgEl.addEventListener('error', () => {
+                        imgEl.src = defaultImg;
+                        img = defaultImg;
                     });
                 }
 
-                const addToCartBtn = card.querySelector('.add-to-cart');
+                const addBtn = card.querySelector('.add-to-cart');
                 const quantitySelector = card.querySelector('.input-box--count');
                 const quantityValue = quantitySelector?.querySelector('.quantity-value');
-                const quantityBtnMinus = quantitySelector?.querySelectorAll('.quantity-btn')[0];
-                const quantityBtnPlus = quantitySelector?.querySelectorAll('.quantity-btn')[1];
+                const minusBtn = quantitySelector?.querySelectorAll('.quantity-btn')[0];
+                const plusBtn = quantitySelector?.querySelectorAll('.quantity-btn')[1];
 
                 if (this.cartManager.cart[dishName]) {
                     quantityValue.textContent = this.cartManager.cart[dishName].qty;
-                    addToCartBtn.style.display = 'none';
+                    addBtn.style.display = 'none';
                     quantitySelector.classList.add('active');
                 }
 
-                addToCartBtn.addEventListener('click', () => {
+                addBtn.addEventListener('click', () => {
                     const qty = parseInt(quantityValue.textContent);
-                    this.cartManager.addItem(dishName, price, img?.src || defaultImg, qty);
-                    addToCartBtn.style.display = 'none';
+                    this.cartManager.addItem(dishName, price, img, qty);
+                    addBtn.style.display = 'none';
                     quantitySelector.classList.add('active');
                 });
 
-                quantityBtnMinus.addEventListener('click', () => {
+                minusBtn.addEventListener('click', () => {
                     if (parseInt(quantityValue.textContent) > 1) {
                         quantityValue.textContent = parseInt(quantityValue.textContent) - 1;
                         this.cartManager.decreaseItem(dishName);
                     } else {
                         quantitySelector.classList.remove('active');
-                        addToCartBtn.style.display = 'block';
+                        addBtn.style.display = 'block';
                         quantityValue.textContent = '1';
                         this.cartManager.removeItem(dishName);
                     }
                 });
 
-                quantityBtnPlus.addEventListener('click', () => {
+                plusBtn.addEventListener('click', () => {
                     quantityValue.textContent = parseInt(quantityValue.textContent) + 1;
                     this.cartManager.increaseItem(dishName);
                 });
@@ -301,27 +378,8 @@ document.addEventListener("DOMContentLoaded", () => {
     (async () => {
         const storage = new CartStorage();
         const cartManager = new CartManager(storage);
-
         await cartManager.init();
-
-        cartManager.syncMenuUI = () => {
-            document.querySelectorAll('.product-card').forEach(card => {
-                const dishName = card.querySelector('.dish-name').textContent;
-                const addToCartBtn = card.querySelector('.add-to-cart');
-                const quantitySelector = card.querySelector('.input-box--count');
-                const quantityValue = quantitySelector?.querySelector('.quantity-value');
-
-                if (cartManager.cart[dishName]) {
-                    quantityValue.textContent = cartManager.cart[dishName].qty;
-                    addToCartBtn.style.display = 'none';
-                    quantitySelector.classList.add('active');
-                } else {
-                    quantityValue.textContent = '1';
-                    addToCartBtn.style.display = 'block';
-                    quantitySelector.classList.remove('active');
-                }
-            });
-        };
+        cartManager.syncMenuUI();
 
         const cartUI = new CartUI(cartManager);
         const menuManager = new MenuManager(cartManager);

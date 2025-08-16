@@ -31,5 +31,9 @@ def create_app():
     
     from app.routes.user_routes import user_bp
     app.register_blueprint(user_bp)
+    
+    from app.routes.cart_api import cart_api
+    app.register_blueprint(cart_api)
+
 
     return app
