@@ -95,5 +95,3 @@ For permissions, contact: [aleynikov.aleksandr@icloud.com](mailto:aleynikov.alek
 
 Developed by Aleynikov Aleksandr  
 Contact: [aleynikov.aleksandr@icloud.com](mailto:aleynikov.aleksandr@icloud.com)
-
-<a href="https://t.me/WiseKing80_Alexander" target="_blank" style="display:inline-block; width:24px; height:24px; border-radius:50%; background:#fff; text-align:center; line-height:10px;"> <svg role="img" viewBox="0 0 24 24" width="24" height="24" style="vertical-align:middle;"> <title>Telegram</title> <path fill="#26A5E4" d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm5.568 8.188l-1.983 9.36c-.15.656-.537.813-1.088.506l-3.005-2.218-1.448 1.392c-.16.16-.295.295-.605.295l.216-3.114 5.667-5.128c.246-.216-.053-.336-.38-.12l-7.01 4.408-3.018-.945c-.654-.205-.666-.654.136-.968l11.78-4.537c.545-.205 1.02.128.844.948z"/> </svg> </a>
