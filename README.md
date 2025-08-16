@@ -1,30 +1,33 @@
 # Restaurant Web Application — `restaurant_web_app`
 
-## Features(at the current moment of development)
+## Features (Current Development Status)
 
-- User registration and login
-- Viewing detailed menu items (with price, weight, and ingredients)
-- Dish cards with images and descriptions
-- Cart functionality (add/remove items, quantity adjustment)
-- Sorting by name and price
-- Reservations and order viewing (interface in progress)
-- Secure logout
-- Flash messages for status feedback
+* User registration and login for **Visitors** and **Staff**
+* Viewing detailed menu items (price, weight, ingredients, images)
+* Dish cards with modern UI styling and descriptions
+* Cart functionality:
+  * Add/remove items
+  * Adjust quantity with +/− buttons
+  * Undo/Redo actions
+  * Clear all items
+* Sorting menu items by name and price
+* Reservations and order overview (interface under development)
+* Secure logout for all user types
+* Flash messages for success/error feedback
+* Client-side and server-side cart synchronization (IndexedDB + Flask API)
 
 ## Technologies Used
 
-- Python 3.11+
-- Flask
-- SQLAlchemy
-- Flask-Login
-- MySQL
-- HTML5
-- CSS3
-- JavaScript
+* Python 3.11+
+* Flask + Flask-Login
+* SQLAlchemy (ORM)
+* MySQL (Database)
+* HTML5, CSS3, JavaScript (ES6+)
+* AJAX/Fetch API for cart synchronization
 
 ## Getting Started
 
-# Project Setup
+### Project Setup
 
 1. Clone the repository:
    ```bash
@@ -33,12 +36,12 @@
    ```
 
 2. Create and activate a virtual environment:
-   - On macOS/Linux:
+   * On macOS/Linux:
      ```bash
      python -m venv venv
      source venv/bin/activate
      ```
-   - On Windows:
+   * On Windows:
      ```bash
      python -m venv venv
      venv\Scripts\activate
@@ -71,16 +74,26 @@ http://127.0.0.1:5000
 - Login: `of_SemenovKN` 
 - Password: `Pa$$w0rd`
 
-# Application Notes
-- **Visitor Login**: After logging in as a visitor, users are redirected to a modern user interface displaying a dish menu.
-- **Logout Functionality**: A "Logout" button in the header handles logout and redirects users to the login screen.
-- **Flash Messages**: Flash messages are used to notify users of success or error states during authentication.
+## Application Notes
 
-# License
+* **Visitor Login**: After logging in, visitors are redirected to a modern user interface showing the dish menu with interactive cards.
+* **Cart System**: Fully interactive cart with undo/redo, quantity adjustment, server sync, and persistent storage in IndexedDB.
+* **Menu Sorting**: Users can sort dishes by name and price.
+* **Logout**: Secure logout available in the header.
+* **Flash Messages**: Used for authentication and cart actions feedback.
+* **Responsive Design**: Interface adapts to mobile and desktop screens.
 
-- This project is for educational purposes and has no license. Contact the author for usage permissions.
+## License
 
-# Author
+Copyright (c) 2025 Aleynikov Aleksandr
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software (`restaurant_web_app`) for educational or demonstration purposes only. The software may not be used for commercial purposes, redistributed, or modified without prior written permission from the copyright holder.
+
+For permissions, contact: [aleynikov.aleksandr@icloud.com](mailto:aleynikov.aleksandr@icloud.com).
+
+## Author
 
 Developed by Aleynikov Aleksandr  
-Contact: aleynikov.aleksandr@icloud.com
+Contact: [aleynikov.aleksandr@icloud.com](mailto:aleynikov.aleksandr@icloud.com)
+
+<a href="https://t.me/WiseKing80_Alexander" target="_blank" style="display:inline-block; width:24px; height:24px; border-radius:50%; background:#fff; text-align:center; line-height:10px;"> <svg role="img" viewBox="0 0 24 24" width="24" height="24" style="vertical-align:middle;"> <title>Telegram</title> <path fill="#26A5E4" d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm5.568 8.188l-1.983 9.36c-.15.656-.537.813-1.088.506l-3.005-2.218-1.448 1.392c-.16.16-.295.295-.605.295l.216-3.114 5.667-5.128c.246-.216-.053-.336-.38-.12l-7.01 4.408-3.018-.945c-.654-.205-.666-.654.136-.968l11.78-4.537c.545-.205 1.02.128.844.948z"/> </svg> </a>
