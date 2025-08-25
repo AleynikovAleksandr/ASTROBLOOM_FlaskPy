@@ -1,4 +1,4 @@
-# Restaurant Web Application — `restaurant_web_app`
+# Restaurant Web Application — `ASTROBLOOM_FlaskPy`
 
 ## Features (Current Development Status)
 
@@ -31,8 +31,8 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/AleynikovAleksandr/restaurant_web_app.git
-   cd restaurant_web_app
+   git clone https://github.com/AleynikovAleksandr/ASTROBLOOM_FlaskPy.git
+   cd ASTROBLOOM_FlaskPy
    ```
 
 2. Create and activate a virtual environment:
@@ -87,7 +87,7 @@ http://127.0.0.1:5000
 
 Copyright (c) 2025 Aleynikov Aleksandr
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software (`restaurant_web_app`) for educational or demonstration purposes only. The software may not be used for commercial purposes, redistributed, or modified without prior written permission from the copyright holder.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software (`ASTROBLOOM_FlaskPy`) for educational or demonstration purposes only. The software may not be used for commercial purposes, redistributed, or modified without prior written permission from the copyright holder.
 
 For permissions, contact: [aleynikov.aleksandr@icloud.com](mailto:aleynikov.aleksandr@icloud.com).
 
