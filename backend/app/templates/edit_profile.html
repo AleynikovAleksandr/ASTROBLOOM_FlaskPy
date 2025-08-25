@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile_form.css') }}">
+</head>
+<body>
+  <script src="{{ url_for('static', filename='js/edit_profile.js') }}"></script>
+  <div class="layout-app">
+    <main class="backdrop-overlay">
+      <div class="backdrop-overlay__dim"></div>
+      <div class="modal-container">
+        <section class="modal-window" role="dialog" aria-modal="true" aria-labelledby="title">
+          <header class="modal-window__header">
+            <button class="modal-window__close-btn" type="button" aria-label="Close">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+            <div class="modal-window__title" id="title">Edit profile</div>
+            <button class="modal-window__save-btn" type="button" id="saveBtn" disabled>Save</button>
+          </header>
+          <div class="banner-cover">
+            <div class="avatar-wrapper">
+              <div class="avatar-image">
+                <div class="avatar-image__camera" title="Change avatar">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3l2-3h8l2 3h3a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-content">
+            <!-- Passport -->
+            <label class="form-content__field" id="passportField">
+              <div class="form-content__label">Passport</div>
+              <input class="form-content__input" id="passport" maxlength="10" inputmode="numeric" data-value="{{ passport }}" />
+              <span class="form-content__counter" id="passportCounter">0 / 10</span>
+              <span class="error-message" id="passportError"></span>
+            </label>
+            <!-- Full Name -->
+            <label class="form-content__field" id="fullNameField">
+              <div class="form-content__label">Full Name</div>
+              <input class="form-content__input" id="fullName" data-value="{{ full_name }}" />
+              <span class="error-message" id="fullNameError"></span>
+            </label>
+            <!-- Bank Card Number -->
+            <label class="form-content__field" id="cardField">
+              <div class="form-content__label">Bank Card Number</div>
+              <input class="form-content__input" id="cardNumber" maxlength="16" inputmode="numeric" data-value="{{ card_number }}" />
+              <span class="form-content__counter" id="cardCounter">0 / 16</span>
+              <span class="error-message" id="cardError"></span>
+            </label>
+            <!-- Login -->
+            <label class="form-content__field" id="loginField">
+              <div class="form-content__label">Login</div>
+              <input class="form-content__input" id="login" maxlength="50"  data-value="{{ login }}" />
+              <span class="form-content__counter" id="loginCounter">0 / 50</span>
+              <span class="error-message" id="loginError"></span>
+            </label>
+            <!-- Password -->
+            <label class="form-content__field" id="passwordField" style="position:relative;">
+              <div class="form-content__label">Password</div>
+              <input class="form-content__input" type="password" id="password" data-value="{{ password }}" />
+              <button class="password-eye" id="togglePwd" tabindex="-1" type="button" aria-label="Show password">
+                <svg id="eyeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+              <span class="error-message" id="passwordError"></span>
+            </label>
+            <div class="spacer-footer"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

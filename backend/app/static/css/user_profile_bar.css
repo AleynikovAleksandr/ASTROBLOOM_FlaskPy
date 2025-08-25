@@ -1,0 +1,146 @@
+ :root {
+            --primary-color: #f04634;
+            --text-color: #333;
+            --border-color: #eee;
+            --bg-color: #ffffff;
+            --shadow-light: 0 1px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .user-profile-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: absolute;
+            right: 8.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 6px 12px;
+            opacity: 0.9;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            object-fit: cover;
+            background: #f8f8f8;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-weight: 500;
+            font-size: 15px;
+            color: var(--text-color);
+        }
+
+        .user-info-btn .username {
+            color: var(--text-color);
+        }
+
+        .user-info-btn .edit-profile-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: 500;
+            font-size: 15px;
+            color: var(--text-color);
+        }
+
+        .user-info-btn .edit-icon {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .user-info-btn .edit-icon svg {
+            stroke: var(--primary-color);
+            transition: stroke 0.2s ease, transform 0.2s ease;
+        }
+
+        .user-info-btn .edit-icon:hover svg {
+            stroke: #c5352a;
+            transform: scale(1.15);
+        }
+
+        .user-info-btn .edit-icon::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            margin-bottom: 8px;
+        }
+
+        .user-info-btn .edit-icon:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .user-info-btn .divider {
+            width: 1px;
+            height: 16px;
+            background: var(--border-color);
+            border-radius: 1px;
+            margin: 0 8px;
+            align-self: center;
+        }
+
+        @media (max-width: 768px) {
+            .user-profile-bar {
+                right: 7.5rem;
+                padding: 4px 8px;
+                opacity: 0.9;
+            }
+
+            .user-avatar {
+                width: 30px;
+                height: 30px;
+            }
+
+            .user-info-btn {
+                font-size: 14px;
+                padding: 5px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .user-profile-bar {
+                position: static;
+                transform: none;
+                margin: 1rem 0;
+                opacity: 0.9;
+            }
+        }

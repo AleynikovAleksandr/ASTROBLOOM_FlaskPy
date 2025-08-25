@@ -16,6 +16,7 @@ def create_app():
 
     from app.models.visitor import Visitor
     from app.models.waiter import Waiter
+   
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -34,6 +35,9 @@ def create_app():
     
     from app.routes.cart_api import cart_api
     app.register_blueprint(cart_api)
+    
+    from app.routes.profile_bp import profile_bp
+    app.register_blueprint(profile_bp)
 
 
     return app
