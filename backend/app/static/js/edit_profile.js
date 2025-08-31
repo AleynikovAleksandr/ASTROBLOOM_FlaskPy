@@ -141,18 +141,18 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert("Profile updated successfully");
-          if (data.loginChanged) {
-            console.log("Cart transferred to new login");
-          }
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        if (data.loginChanged) {
+          // редиректим на страницу входа
+          window.location.href = data.redirect;
         } else {
-          alert("Error updating profile: " + data.message);
+          // просто возвращаемся на предыдущую страницу
+          window.history.back();
         }
-      })
-      .catch(err => console.error(err));
+      }
+    });
   }
 
   saveBtn.addEventListener("click", saveProfile);

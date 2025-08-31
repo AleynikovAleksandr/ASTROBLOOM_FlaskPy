@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import session, flash, url_for, jsonify
 from flask_login import login_required, current_user
 from app import db
 from app.models.visitor import Visitor
@@ -42,7 +43,26 @@ def edit_profile():
             User_Cart.query.filter_by(user_login=old_login).update({"user_login": new_login})
 
         db.session.commit()
-        return jsonify({"success": True, "message": "Profile updated", "loginChanged": login_changed})
+        
+        if login_changed:
+            # если логин изменился → фронт должен разлогинить пользователя
+            session.pop('_flashes', None)
+            flash("You have been logged out.", "info")
+            
+            return jsonify({
+                "success": True,
+                "message": "Profile updated",
+                "loginChanged": True,
+                "redirect": url_for("auth.home")
+            })
+
+        # если логин не менялся
+        return jsonify({
+            "success": True,
+            "message": "Profile updated",
+            "loginChanged": False
+        })
+
 
     # GET — подгружаем текущие данные
     full_name = f"{user.last_name} {user.first_name}"
@@ -55,5 +75,5 @@ def edit_profile():
         full_name=full_name,
         card_number=user.bank_card_number,
         login=user.login,
-        password=user.password  # Если нужно, можно не передавать настоящий пароль
+        password=user.password  
     )
